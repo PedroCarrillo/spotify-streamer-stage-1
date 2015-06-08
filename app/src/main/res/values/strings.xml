@@ -11,4 +11,5 @@
     <string name="country_key">selected_country</string>
     <string name="country_text_pref">Country</string>
     <string name="default_country">US</string>
+    <string name="artist_not_found">Artist not found. Please refine your search</string>
 </resources>

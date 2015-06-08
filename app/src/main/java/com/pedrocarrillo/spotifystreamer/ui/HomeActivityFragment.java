@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.pedrocarrillo.spotifystreamer.R;
 import com.pedrocarrillo.spotifystreamer.adapters.ArtistListAdapter;
@@ -105,12 +106,19 @@ public class HomeActivityFragment extends Fragment implements ArtistAsyncTask.Ad
 
     @Override
     public void updateList(List<Artist> artistList) {
+        alertArtistNotFound();
         artistListAdapter.updateData(artistList);
     }
 
     @Override
     public void clearList(){
+        alertArtistNotFound();
         artistListAdapter.clear();
     }
 
+    public void alertArtistNotFound(){
+        if( artistListAdapter.getCount() == 0 && etArtist.getText().length() > 0) {
+            Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.artist_not_found), Toast.LENGTH_SHORT).show();
+        }
+    }
 }
