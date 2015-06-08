@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Spotify Streamer</string>
+    <string name="title_activity_home">HomeActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="sv_search_hint">Search an artist</string>
+    <string name="song_title_hint">Song title</string>
+    <string name="album_text_hint">Album Name</string>
+    <string name="title_activity_top_tracks">Top 10 Tracks</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="country_key">selected_country</string>
+    <string name="country_text_pref">Country</string>
+    <string name="default_country">US</string>
+</resources>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="20dp"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin">
+
+    <ImageView
+        android:id="@+id/ivSongImage"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:background="@drawable/not_found"/>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:paddingLeft="10dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_vertical">
+        <TextView
+            android:id="@+id/tvSongTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/song_title_hint"/>
+        <TextView
+            android:id="@+id/tvAlbumName"
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/album_text_hint"/>
+    </LinearLayout>
+
+</LinearLayout>

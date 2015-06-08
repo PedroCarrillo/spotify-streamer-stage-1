@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="@string/country_key"
+        android:title="@string/country_text_pref"
+        android:defaultValue="@string/default_country"
+        android:inputType="text"
+        android:maxLength="2"
+        android:singleLine="true"/>
+</PreferenceScreen>
