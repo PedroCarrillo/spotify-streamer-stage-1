@@ -16,14 +16,14 @@ import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.Tracks;
+import retrofit.RetrofitError;
 
 /**
  * Created by Pedro on 07/06/15.
  */
-public class TopTracksAsyncTask extends AsyncTask<String,Void,List<Track>> {
+public class TopTracksAsyncTask extends AsyncTask<String,Void,Tracks> {
 
     private TrackAdapterListener adapterListener;
-    private List<Track> trackList;
     private Context context;
 
     public TopTracksAsyncTask(Fragment fragment){
@@ -32,7 +32,7 @@ public class TopTracksAsyncTask extends AsyncTask<String,Void,List<Track>> {
     }
 
     @Override
-    protected List<Track> doInBackground(String... params) {
+    protected Tracks doInBackground(String... params) {
         if (params.length == 0) {
             return null;
         }
@@ -43,24 +43,33 @@ public class TopTracksAsyncTask extends AsyncTask<String,Void,List<Track>> {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         String countryKey = sharedPreferences.getString(context.getResources().getString(R.string.country_key), context.getResources().getString(R.string.default_country));
         parameters.put("country", countryKey);
-        Tracks results = spotify.getArtistTopTrack(query,parameters);
-        trackList = results.tracks;
-        return trackList;
+        try{
+            return spotify.getArtistTopTrack(query,parameters);
+        }catch (RetrofitError e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
-    protected void onPostExecute(List<Track> artistList) {
-        super.onPostExecute(artistList);
-        if ( artistList != null) {
-            adapterListener.updateList(artistList);
-        }else{
-            adapterListener.clearList();
+    protected void onPostExecute(Tracks tracks) {
+        super.onPostExecute(tracks);
+        if(tracks != null) {
+            List<Track> trackList = tracks.tracks;
+            if (trackList != null) {
+                adapterListener.updateList(trackList);
+            } else {
+                adapterListener.clearList();
+            }
+        }else {
+            adapterListener.errorConnection();
         }
     }
 
     public interface TrackAdapterListener{
         void updateList(List<Track> tracksList);
         void clearList();
+        void errorConnection();
     }
 
 }
