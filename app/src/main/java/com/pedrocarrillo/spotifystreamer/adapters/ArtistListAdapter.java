@@ -8,11 +8,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.pedrocarrillo.spotifystreamer.R;
+import com.pedrocarrillo.spotifystreamer.entities.Artist;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import kaaes.spotify.webapi.android.models.Artist;
 
 /**
  * Created by Pedro on 07/06/15.
@@ -23,6 +24,10 @@ public class ArtistListAdapter extends BaseAdapter {
 
     public ArtistListAdapter(List<Artist> artistList){
         this.artistList = artistList;
+    }
+
+    public ArrayList<Artist> getArtistList(){
+        return new ArrayList<Artist>(artistList);
     }
 
     @Override
@@ -55,12 +60,8 @@ public class ArtistListAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) convertView.getTag();
         }
         final Artist artist = artistList.get(position);
-        viewHolder.tvArtistName.setText(artist.name);
-        String imageUrl = "http://www.google.com";
-        if(artist.images.size() > 0) {
-            imageUrl = artist.images.get(0).url;
-        }
-        Picasso.with(parent.getContext()).load(imageUrl).placeholder(R.drawable.not_found ).into(viewHolder.ivArtistImage);
+        viewHolder.tvArtistName.setText(artist.getName());
+        Picasso.with(parent.getContext()).load(artist.getImageUrl()).placeholder(R.drawable.not_found ).into(viewHolder.ivArtistImage);
         return convertView;
     }
 

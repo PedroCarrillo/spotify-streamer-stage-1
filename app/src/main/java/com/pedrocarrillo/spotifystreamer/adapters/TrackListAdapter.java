@@ -1,6 +1,5 @@
 package com.pedrocarrillo.spotifystreamer.adapters;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,11 +8,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.pedrocarrillo.spotifystreamer.R;
+import com.pedrocarrillo.spotifystreamer.entities.Track;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import kaaes.spotify.webapi.android.models.Track;
 
 /**
  * Created by Pedro on 07/06/15.
@@ -21,7 +21,6 @@ import kaaes.spotify.webapi.android.models.Track;
 public class TrackListAdapter extends BaseAdapter {
 
     List<Track> trackList;
-    Context context;
 
     public TrackListAdapter(List<Track> trackList){
         this.trackList = trackList;
@@ -58,14 +57,14 @@ public class TrackListAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) convertView.getTag();
         }
         final Track track = trackList.get(position);
-        viewHolder.tvSongTitle.setText(track.name);
-        viewHolder.tvAlbumTitle.setText(track.album.name);
-        String imageUrl = "http://www.google.com";
-        if(track.album.images.size() > 0) {
-            imageUrl = track.album.images.get(0).url;
-        }
-        Picasso.with(parent.getContext()).load(imageUrl).placeholder(R.drawable.not_found).into(viewHolder.ivSongImage);
+        viewHolder.tvSongTitle.setText(track.getName());
+        viewHolder.tvAlbumTitle.setText(track.getAlbumTitle());
+        Picasso.with(parent.getContext()).load(track.getImageUrl()).placeholder(R.drawable.not_found).into(viewHolder.ivSongImage);
         return convertView;
+    }
+
+    public ArrayList<Track> getTrackList(){
+        return new ArrayList<>(trackList);
     }
 
     public void updateData(List<Track> trackList){

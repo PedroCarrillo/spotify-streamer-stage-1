@@ -3,6 +3,7 @@ package com.pedrocarrillo.spotifystreamer.asynctasks;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -43,8 +44,16 @@ public class ArtistAsyncTask extends AsyncTask<String,Void,ArtistsPager> {
         super.onPostExecute(artistsPager);
         if (artistsPager != null) {
             List<Artist> artistList = artistsPager.artists.items;
+            List<com.pedrocarrillo.spotifystreamer.entities.Artist> entityArtistList = new ArrayList<>();
+            for ( Artist spotifyArtist : artistList){
+                String imageUrl = "http://www.google.com";
+                if(spotifyArtist.images.size() > 0) {
+                    imageUrl = spotifyArtist.images.get(0).url;
+                }
+                entityArtistList.add(new com.pedrocarrillo.spotifystreamer.entities.Artist(spotifyArtist.id,spotifyArtist.name, imageUrl));
+            }
             if (artistList != null) {
-                adapterListener.updateList(artistList);
+                adapterListener.updateList(entityArtistList);
             } else {
                 adapterListener.clearList();
             }
@@ -54,7 +63,7 @@ public class ArtistAsyncTask extends AsyncTask<String,Void,ArtistsPager> {
     }
 
     public interface AdapterListener{
-        void updateList(List<Artist> artistList);
+        void updateList(List<com.pedrocarrillo.spotifystreamer.entities.Artist> artistList);
         void clearList();
         void noConnection();
     }

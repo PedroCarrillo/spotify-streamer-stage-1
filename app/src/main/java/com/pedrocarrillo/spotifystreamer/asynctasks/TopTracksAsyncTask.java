@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 
 import com.pedrocarrillo.spotifystreamer.R;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,8 +57,16 @@ public class TopTracksAsyncTask extends AsyncTask<String,Void,Tracks> {
         super.onPostExecute(tracks);
         if(tracks != null) {
             List<Track> trackList = tracks.tracks;
+            List<com.pedrocarrillo.spotifystreamer.entities.Track> entityTrackList = new ArrayList<>();
+            for ( Track spotifyTrack : trackList){
+                String imageUrl = "http://www.google.com";
+                if(spotifyTrack.album.images.size() > 0) {
+                    imageUrl = spotifyTrack.album.images.get(0).url;
+                }
+                entityTrackList.add(new com.pedrocarrillo.spotifystreamer.entities.Track(spotifyTrack.id,spotifyTrack.name,spotifyTrack.album.name, imageUrl));
+            }
             if (trackList != null) {
-                adapterListener.updateList(trackList);
+                adapterListener.updateList(entityTrackList);
             } else {
                 adapterListener.clearList();
             }
@@ -67,7 +76,7 @@ public class TopTracksAsyncTask extends AsyncTask<String,Void,Tracks> {
     }
 
     public interface TrackAdapterListener{
-        void updateList(List<Track> tracksList);
+        void updateList(List<com.pedrocarrillo.spotifystreamer.entities.Track> tracksList);
         void clearList();
         void errorConnection();
     }

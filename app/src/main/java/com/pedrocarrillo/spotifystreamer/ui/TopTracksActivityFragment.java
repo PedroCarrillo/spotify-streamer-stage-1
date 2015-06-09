@@ -12,11 +12,11 @@ import android.widget.Toast;
 import com.pedrocarrillo.spotifystreamer.R;
 import com.pedrocarrillo.spotifystreamer.adapters.TrackListAdapter;
 import com.pedrocarrillo.spotifystreamer.asynctasks.TopTracksAsyncTask;
+import com.pedrocarrillo.spotifystreamer.entities.Track;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import kaaes.spotify.webapi.android.models.Track;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -28,6 +28,7 @@ public class TopTracksActivityFragment extends Fragment implements TopTracksAsyn
     private ProgressBar progressBar;
     public static String ARTIST_NAME_KEY = "ARTIST_NAME";
     public static String ARTIST_ID_KEY = "ARTIST_ID";
+    public static String TRACK_LIST_KEY = "TRACK_LIST_KEY";
 
     public TopTracksActivityFragment() {
     }
@@ -44,25 +45,26 @@ public class TopTracksActivityFragment extends Fragment implements TopTracksAsyn
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        trackListAdapter = new TrackListAdapter(new ArrayList<Track>());
-        lvTopTracks.setAdapter(trackListAdapter);
         String artistId, artistName;
         if( savedInstanceState == null){
             artistId = getActivity().getIntent().getStringExtra(HomeActivityFragment.ARTIST_ID);
             artistName = getActivity().getIntent().getStringExtra(HomeActivityFragment.ARTIST_NAME);
+            progressBar.setVisibility(View.VISIBLE);
+            TopTracksAsyncTask topTracksAsyncTask = new TopTracksAsyncTask(this);
+            topTracksAsyncTask.execute(artistId);
+            trackListAdapter = new TrackListAdapter(new ArrayList<Track>());
         }else {
-            artistId = savedInstanceState.getString(ARTIST_ID_KEY);
             artistName = savedInstanceState.getString(ARTIST_NAME_KEY);
+            ArrayList<Track> tracksArrayList = savedInstanceState.getParcelableArrayList(TRACK_LIST_KEY);
+            trackListAdapter = new TrackListAdapter(tracksArrayList);
         }
+        lvTopTracks.setAdapter(trackListAdapter);
         ((TopTracksActivity)getActivity()).getSupportActionBar().setSubtitle(artistName);
-        progressBar.setVisibility(View.VISIBLE);
-        TopTracksAsyncTask topTracksAsyncTask = new TopTracksAsyncTask(this);
-        topTracksAsyncTask.execute(artistId);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putString(ARTIST_ID_KEY, getActivity().getIntent().getStringExtra(HomeActivityFragment.ARTIST_ID));
+        outState.putParcelableArrayList(TRACK_LIST_KEY, trackListAdapter.getTrackList());
         outState.putString(ARTIST_NAME_KEY, getActivity().getIntent().getStringExtra(HomeActivityFragment.ARTIST_NAME));
         super.onSaveInstanceState(outState);
     }

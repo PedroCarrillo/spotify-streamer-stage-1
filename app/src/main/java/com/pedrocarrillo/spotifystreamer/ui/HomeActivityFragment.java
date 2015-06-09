@@ -15,11 +15,11 @@ import android.widget.Toast;
 import com.pedrocarrillo.spotifystreamer.R;
 import com.pedrocarrillo.spotifystreamer.adapters.ArtistListAdapter;
 import com.pedrocarrillo.spotifystreamer.asynctasks.ArtistAsyncTask;
+import com.pedrocarrillo.spotifystreamer.entities.Artist;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import kaaes.spotify.webapi.android.models.Artist;
 
 
 /**
@@ -32,7 +32,7 @@ public class HomeActivityFragment extends Fragment implements ArtistAsyncTask.Ad
     private ProgressBar progressBar;
     private ArtistListAdapter artistListAdapter;
     private ArtistAsyncTask artistAsyncTask;
-    public static String QUERY_KEY = "QUERY_KEY";
+    public static String LIST_ARTIST_KEY = "ARTIST_LIST_KEY";
     public static String ARTIST_ID = "ARTIST_ID";
     public static String ARTIST_NAME = "ARTIST_NAME";
 
@@ -53,13 +53,11 @@ public class HomeActivityFragment extends Fragment implements ArtistAsyncTask.Ad
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if(savedInstanceState != null){
-            String query = savedInstanceState.getString(QUERY_KEY);
-            if ( query != null) {
-                artistAsyncTask = new ArtistAsyncTask(HomeActivityFragment.this);
-                artistAsyncTask.execute(query);
-            }
+            ArrayList<Artist> artistArrayList = savedInstanceState.getParcelableArrayList(LIST_ARTIST_KEY);
+            artistListAdapter = new ArtistListAdapter(artistArrayList);
+        }else{
+            artistListAdapter = new ArtistListAdapter(new ArrayList<Artist>());
         }
-        artistListAdapter = new ArtistListAdapter(new ArrayList<Artist>());
         lvArtist.setAdapter(artistListAdapter);
         svArtist.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
@@ -85,8 +83,8 @@ public class HomeActivityFragment extends Fragment implements ArtistAsyncTask.Ad
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Artist artist = artistListAdapter.getItem(position);
                 Intent intent = new Intent(getActivity(), TopTracksActivity.class);
-                intent.putExtra(ARTIST_ID, artist.id);
-                intent.putExtra(ARTIST_NAME,artist.name);
+                intent.putExtra(ARTIST_ID, artist.getId());
+                intent.putExtra(ARTIST_NAME,artist.getName());
                 startActivity(intent);
             }
         });
@@ -94,7 +92,7 @@ public class HomeActivityFragment extends Fragment implements ArtistAsyncTask.Ad
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putString(QUERY_KEY, svArtist.getQuery().toString());
+        outState.putParcelableArrayList(LIST_ARTIST_KEY, artistListAdapter.getArtistList());
         super.onSaveInstanceState(outState);
     }
 
