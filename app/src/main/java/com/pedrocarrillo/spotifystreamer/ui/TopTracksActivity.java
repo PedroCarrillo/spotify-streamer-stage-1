@@ -1,14 +1,13 @@
 package com.pedrocarrillo.spotifystreamer.ui;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.pedrocarrillo.spotifystreamer.R;
 
-public class TopTracksActivity extends ActionBarActivity {
+public class TopTracksActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

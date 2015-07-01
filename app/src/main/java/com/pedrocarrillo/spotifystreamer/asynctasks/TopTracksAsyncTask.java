@@ -63,7 +63,7 @@ public class TopTracksAsyncTask extends AsyncTask<String,Void,Tracks> {
                 if(spotifyTrack.album.images.size() > 0) {
                     imageUrl = spotifyTrack.album.images.get(0).url;
                 }
-                entityTrackList.add(new com.pedrocarrillo.spotifystreamer.entities.Track(spotifyTrack.id,spotifyTrack.name,spotifyTrack.album.name, imageUrl));
+                entityTrackList.add(new com.pedrocarrillo.spotifystreamer.entities.Track(spotifyTrack.id,spotifyTrack.name,spotifyTrack.album.name, imageUrl, spotifyTrack.preview_url));
             }
             if (trackList != null) {
                 adapterListener.updateList(entityTrackList);
