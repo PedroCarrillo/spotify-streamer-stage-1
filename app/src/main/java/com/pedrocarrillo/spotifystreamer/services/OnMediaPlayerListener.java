@@ -11,4 +11,6 @@ import com.pedrocarrillo.spotifystreamer.entities.Track;
 public interface OnMediaPlayerListener{
     Track getTrackSelected();
     MediaPlayer getMediaPlayer();
+    boolean isSameSong();
+    PreviewPlayerService.PlayerState getPlayerState();
 }

@@ -18,7 +18,7 @@ import com.pedrocarrillo.spotifystreamer.services.PreviewPlayerService;
  */
 public class BaseActivity extends ActionBarActivity implements OnMediaPlayerListener {
 
-    public PreviewPlayerService previewPlayerService;
+    protected PreviewPlayerService previewPlayerService;
     public boolean mBound = false;
 
     @Override
@@ -30,7 +30,6 @@ public class BaseActivity extends ActionBarActivity implements OnMediaPlayerList
     @Override
     protected void onStart() {
         super.onStart();
-        // Bind to LocalService
         Intent intent = new Intent(this, PreviewPlayerService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
@@ -47,13 +46,25 @@ public class BaseActivity extends ActionBarActivity implements OnMediaPlayerList
 
     @Override
     public Track getTrackSelected() {
-        if(mBound) return previewPlayerService.trackList.get(previewPlayerService.selectedTrackPosition);
+        if(mBound) return previewPlayerService.trackList.get(previewPlayerService.getSelectedTrackPosition());
         return null;
     }
 
     @Override
     public MediaPlayer getMediaPlayer() {
         if(mBound) return previewPlayerService.mediaPlayer;
+        return null;
+    }
+
+    @Override
+    public boolean isSameSong() {
+        if(mBound) return previewPlayerService.sameSong;
+        return false;
+    }
+
+    @Override
+    public PreviewPlayerService.PlayerState getPlayerState() {
+        if(mBound) return previewPlayerService.playerState;
         return null;
     }
 
@@ -66,6 +77,7 @@ public class BaseActivity extends ActionBarActivity implements OnMediaPlayerList
             PreviewPlayerService.MusicPlayerBinder binder = (PreviewPlayerService.MusicPlayerBinder) service;
             previewPlayerService = binder.getService();
             mBound = true;
+            serviceReady();
         }
 
         @Override
@@ -74,4 +86,7 @@ public class BaseActivity extends ActionBarActivity implements OnMediaPlayerList
         }
     };
 
+    protected void serviceReady(){
+
+    }
 }
