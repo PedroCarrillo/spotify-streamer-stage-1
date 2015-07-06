@@ -99,7 +99,6 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String playerAction = intent.getAction();
-        playerState.toString();
         if(playerAction.equalsIgnoreCase(ACTION_INIT)){
             trackList = intent.getParcelableArrayListExtra(TRACK_LIST);
         }else if(playerAction.equalsIgnoreCase(ACTION_PREPARE_TRACK)){
@@ -252,8 +251,7 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
     }
 
     public boolean isSameSong(){
-        if(playingTrack != null) return (trackSelected.equals(playingTrack));
-        return false;
+        return playingTrack != null && trackSelected.equals(playingTrack);
     }
 
     public void preparePlayer(){
@@ -275,8 +273,6 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
 
     @Override
     public boolean onUnbind(Intent intent){
-        mediaPlayer.stop();
-        mediaPlayer.release();
         return false;
     }
 
