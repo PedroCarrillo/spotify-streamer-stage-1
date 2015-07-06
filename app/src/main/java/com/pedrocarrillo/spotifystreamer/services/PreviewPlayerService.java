@@ -17,6 +17,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Toast;
 
 import com.pedrocarrillo.spotifystreamer.HomeActivity;
+import com.pedrocarrillo.spotifystreamer.R;
 import com.pedrocarrillo.spotifystreamer.entities.Track;
 
 import java.io.IOException;
@@ -42,6 +43,7 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
     public static String ACTION_PLAY = "action_play";
     public static String ACTION_PAUSE = "action_pause";
     public static String ACTION_STOP = "action_stop";
+    public static String ACTION_UNPAUSE = "action_unpause";
     public static String ACTION_NEXT = "action_next";
     public static String ACTION_PREVIOUS = "action_previous";
     private static int NOTIFICATION_ID = 1;
@@ -50,9 +52,8 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
     private WifiManager.WifiLock wifiLock;
     private final IBinder mBinder = new MusicPlayerBinder();
     private Integer selectedTrackPosition;
-    private Track trackSelected;
+    private Track trackSelected, playingTrack;
     public List<Track> trackList;
-    public boolean sameSong = false;
 
     public static String ACTION_UPDATE_UI = "action_update_ui";
     public static String SONG_CHANGED_TAG = "song_changed";
@@ -107,31 +108,30 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
         }else if( playerAction.equalsIgnoreCase(ACTION_PLAY)) {
             playTrack();
         }else if( playerAction.equalsIgnoreCase(ACTION_PAUSE)) {
+            startNotification();
             playerState = PlayerState.STATE_PAUSE;
             mediaPlayer.pause();
+        }else if( playerAction.equalsIgnoreCase(ACTION_UNPAUSE)) {
+            playerState = PlayerState.STATE_PLAY;
+            mediaPlayer.start();
+            startNotification();
         }else if( playerAction.equalsIgnoreCase(ACTION_NEXT)){
             startNextSong();
+            startNotification();
         }else if( playerAction.equalsIgnoreCase(ACTION_PREVIOUS)) {
             startPreviousSong();
+            startNotification();
         }
-//        setupHandler();
+        setupHandler();
         return START_STICKY;
     }
 
     private void prepareTrack(){
-        Track newTrackSelected = trackList.get(selectedTrackPosition);
-        if ( trackSelected != null ) sameSong = (trackSelected == newTrackSelected);
-        trackSelected = newTrackSelected;
-//        preparePlayer();
+        trackSelected = trackList.get(selectedTrackPosition);
     }
 
     private void playTrack(){
-//        playerState = PlayerState.STATE_PLAY;
-//        if(playerState == PlayerState.STATE_PLAY) {
-//            preparePlayer();
-//        } else{
-//            mediaPlayer.start();
-//        }
+//        if( isSameSong() )
         preparePlayer();
         playerState = PlayerState.STATE_PLAY;
         startNotification();
@@ -142,6 +142,7 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
         if(selectedTrackPosition >= trackList.size()){
             selectedTrackPosition = 0;
         }
+        prepareTrack();
         preparePlayer();
         notifySongChange();
     }
@@ -151,6 +152,7 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
         if (selectedTrackPosition < 0) {
             selectedTrackPosition = trackList.size()-1;
         }
+        prepareTrack();
         preparePlayer();
         notifySongChange();
     }
@@ -188,17 +190,43 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
     }
 
     public void startNotification(){
-        PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
+
+        PendingIntent pIntent = PendingIntent.getActivity(getApplicationContext(), 0,
                 new Intent(getApplicationContext(), HomeActivity.class),
                 PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification notification = new Notification();
-        notification.tickerText = trackList.get(selectedTrackPosition).getName();
-//            notification.icon = R.drawable.play0;
-        notification.flags |= Notification.FLAG_ONGOING_EVENT;
-        notification.setLatestEventInfo(getApplicationContext(), "MusicPlayerSample",
-                "Playing: " + trackList.get(selectedTrackPosition).getName(), pi);
+        Intent playerServiceIntent = new Intent(getApplicationContext(), PreviewPlayerService.class);
+        playerServiceIntent.setAction(ACTION_PREVIOUS);
+        PendingIntent previousIntent = PendingIntent.getService(getApplicationContext(), 0, playerServiceIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        if(playerState == PlayerState.STATE_PLAY) {
+            playerServiceIntent.setAction(ACTION_PAUSE);
+        }else{
+            playerServiceIntent.setAction(ACTION_PLAY);
+        }
+        PendingIntent playpauseIntent = PendingIntent.getService(getApplicationContext(), 0, playerServiceIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        playerServiceIntent.setAction(ACTION_NEXT);
+        PendingIntent nextIntent = PendingIntent.getService(getApplicationContext(), 0,
+                playerServiceIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
 
-        startForeground(NOTIFICATION_ID, notification);
+        Notification.Builder notBuilder  = new Notification.Builder(this)
+                .setContentTitle("Now Playing")
+                .setContentText(trackList.get(selectedTrackPosition).getName())
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentIntent(pIntent)
+//                .setAutoCancel(true)
+                .setWhen(0)
+                .addAction(android.R.drawable.ic_media_previous, "", previousIntent);
+        if(playerState == PlayerState.STATE_PLAY) {
+            notBuilder.addAction(android.R.drawable.ic_media_pause, "", playpauseIntent);
+        }else{
+            notBuilder.addAction(android.R.drawable.ic_media_play, "", playpauseIntent);
+        }
+        notBuilder.addAction(android.R.drawable.ic_media_next, "", nextIntent).build();
+        Notification n  = notBuilder.build();
+        n.flags |= Notification.FLAG_ONGOING_EVENT;
+        startForeground(NOTIFICATION_ID, n);
     }
 
 
@@ -223,8 +251,13 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
         notifySongChange();
     }
 
+    public boolean isSameSong(){
+        if(playingTrack != null) return (trackSelected.equals(playingTrack));
+        return false;
+    }
+
     public void preparePlayer(){
-        Track trackSelected = trackList.get(selectedTrackPosition);
+        playingTrack = trackSelected;
         String url = trackSelected.getPreviewUrl();
         mediaPlayer.reset();
         try {

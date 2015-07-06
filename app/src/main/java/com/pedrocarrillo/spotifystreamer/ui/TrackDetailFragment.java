@@ -22,12 +22,14 @@ import com.pedrocarrillo.spotifystreamer.services.OnMediaPlayerListener;
 import com.pedrocarrillo.spotifystreamer.services.PreviewPlayerService;
 import com.squareup.picasso.Picasso;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * A placeholder fragment containing a simple view.
  */
 public class TrackDetailFragment extends Fragment {
 
-    private TextView tvAlbumTitle, tvSongTitle, tvArtistName;
+    private TextView tvAlbumTitle, tvSongTitle, tvArtistName, tvSongPosition;
     private ImageView ivAlbumImage;
     private Button btnPlay, btnPrevious, btnNext;
     private SeekBar pbSongStatus;
@@ -68,6 +70,7 @@ public class TrackDetailFragment extends Fragment {
         btnPlay = (Button)rootView.findViewById(R.id.btnPlay);
         btnPrevious = (Button)rootView.findViewById(R.id.btnPrevious);
         pbSongStatus = (SeekBar)rootView.findViewById(R.id.pbLoading);
+        tvSongPosition = (TextView)rootView.findViewById(R.id.tvSongPosition);
         return rootView;
     }
 
@@ -101,12 +104,19 @@ public class TrackDetailFragment extends Fragment {
     public void updateSongDetail(){
         final Track trackSelected = onMediaPlayerListener.getTrackSelected();
         boolean sameSong = onMediaPlayerListener.isSameSong();
-        pbSongStatus.setMax(onMediaPlayerListener.getMediaPlayer().getDuration());
         PreviewPlayerService.PlayerState playerState= onMediaPlayerListener.getPlayerState();
         if(sameSong && playerState == PreviewPlayerService.PlayerState.STATE_PLAY){
             btnPlay.setBackgroundResource(android.R.drawable.ic_media_pause);
         }
+        if(!sameSong){
+            pbSongStatus.setMax(0);
+            pbSongStatus.setProgress(0);
+            tvSongPosition.setText(getString(R.string.time_placeholder));
+        }
         if( playerState == PreviewPlayerService.PlayerState.STATE_STOP){
+            pbSongStatus.setMax(0);
+            pbSongStatus.setProgress(0);
+            tvSongPosition.setText(getString(R.string.time_placeholder));
             btnPlay.setBackgroundResource(android.R.drawable.ic_media_play);
         }
         if ( trackSelected != null) {
@@ -123,9 +133,13 @@ public class TrackDetailFragment extends Fragment {
                     playerServiceIntent = getNewPlayerIntent();
                     if (currentPlayerState != PreviewPlayerService.PlayerState.STATE_PLAY) {
                         btnPlay.setBackgroundResource(android.R.drawable.ic_media_pause);
-                        playerServiceIntent.setAction(PreviewPlayerService.ACTION_PLAY);
+                        if (sameSong && currentPlayerState == PreviewPlayerService.PlayerState.STATE_PAUSE){
+                            playerServiceIntent.setAction(PreviewPlayerService.ACTION_UNPAUSE);
+                        }else {
+                            playerServiceIntent.setAction(PreviewPlayerService.ACTION_PLAY);
+                        }
                     } else {
-                        if(sameSong) {
+                        if (sameSong && currentPlayerState == PreviewPlayerService.PlayerState.STATE_PLAY) {
                             btnPlay.setBackgroundResource(android.R.drawable.ic_media_play);
                             playerServiceIntent.setAction(PreviewPlayerService.ACTION_PAUSE);
                         }else{
@@ -170,10 +184,20 @@ public class TrackDetailFragment extends Fragment {
         @Override
         public void onReceive(final Context context, final Intent intent) {
             if (intent.getExtras() != null) {
-                boolean updateUI = intent.getBooleanExtra(PreviewPlayerService.SONG_CHANGED_TAG,false);
-                int seekBarPosition = intent.getIntExtra(PreviewPlayerService.SONG_ACTUAL_POSITION,0);
-                if(updateUI) updateSongDetail();
-                pbSongStatus.setProgress(seekBarPosition);
+                if( intent.hasExtra(PreviewPlayerService.SONG_CHANGED_TAG)) {
+                    boolean updateUI = intent.getBooleanExtra(PreviewPlayerService.SONG_CHANGED_TAG, false);
+                    if (updateUI) updateSongDetail();
+                }else if ( intent.hasExtra(PreviewPlayerService.SONG_ACTUAL_POSITION)) {
+                    int seekBarPosition = intent.getIntExtra(PreviewPlayerService.SONG_ACTUAL_POSITION, 0);
+                    if( onMediaPlayerListener.isSameSong()) {
+                        pbSongStatus.setMax(onMediaPlayerListener.getMediaPlayer().getDuration());
+                        pbSongStatus.setProgress(seekBarPosition);
+                        tvSongPosition.setText(String.format("%d:%d",
+                                TimeUnit.MILLISECONDS.toMinutes(seekBarPosition),
+                                TimeUnit.MILLISECONDS.toSeconds(seekBarPosition) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(seekBarPosition))
+                        ));
+                    }
+                }
             }
         }
     }

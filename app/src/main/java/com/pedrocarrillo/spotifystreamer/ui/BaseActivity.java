@@ -58,7 +58,7 @@ public class BaseActivity extends ActionBarActivity implements OnMediaPlayerList
 
     @Override
     public boolean isSameSong() {
-        if(mBound) return previewPlayerService.sameSong;
+        if(mBound) return previewPlayerService.isSameSong();
         return false;
     }
 

@@ -16,4 +16,5 @@
     <string name="title_activity_track_detail">TrackDetailActivity</string>
     <string name="author_placeholder">Author Text</string>
     <string name="album_placeholder">Album name</string>
+    <string name="time_placeholder">0:00</string>
 </resources>
