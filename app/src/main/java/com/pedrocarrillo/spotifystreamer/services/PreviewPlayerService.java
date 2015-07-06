@@ -6,6 +6,8 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.wifi.WifiManager;
@@ -14,11 +16,14 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.NotificationCompat;
 import android.widget.Toast;
 
 import com.pedrocarrillo.spotifystreamer.HomeActivity;
 import com.pedrocarrillo.spotifystreamer.R;
 import com.pedrocarrillo.spotifystreamer.entities.Track;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.io.IOException;
 import java.util.List;
@@ -188,15 +193,34 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent) ;
     }
 
-    public void startNotification(){
+    Bitmap bigAlbumThump;
+    Drawable smallAlbumThump;
+    private Target target = new Target() {
+        @Override
+        public void onBitmapFailed(Drawable errorDrawable) {
 
+        }
+
+        @Override
+        public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+        }
+
+        @Override
+        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+            bigAlbumThump = bitmap;
+        }
+    };
+
+    public void startNotification(){
+        Picasso.with(getApplicationContext()).load(playingTrack.getImageUrl()).into(target);
         PendingIntent pIntent = PendingIntent.getActivity(getApplicationContext(), 0,
-                new Intent(getApplicationContext(), HomeActivity.class),
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        new Intent(getApplicationContext(), HomeActivity.class),
+        PendingIntent.FLAG_UPDATE_CURRENT);
         Intent playerServiceIntent = new Intent(getApplicationContext(), PreviewPlayerService.class);
         playerServiceIntent.setAction(ACTION_PREVIOUS);
         PendingIntent previousIntent = PendingIntent.getService(getApplicationContext(), 0, playerServiceIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent.FLAG_UPDATE_CURRENT);
         if(playerState == PlayerState.STATE_PLAY) {
             playerServiceIntent.setAction(ACTION_PAUSE);
         }else{
@@ -208,22 +232,28 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
         PendingIntent nextIntent = PendingIntent.getService(getApplicationContext(), 0,
                 playerServiceIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
-
-        Notification.Builder notBuilder  = new Notification.Builder(this)
+            NotificationCompat.Builder notiBuilder = new NotificationCompat.Builder(this);
+        notiBuilder
                 .setContentTitle("Now Playing")
-                .setContentText(trackList.get(selectedTrackPosition).getName())
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentIntent(pIntent)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setStyle(new NotificationCompat.MediaStyle())
+//                .setShowActionsInCompactView(1)
+//                .setMediaSession(mediaPlayer.getSessionToken())
+                .setContentText(playingTrack.getName())
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setLargeIcon(bigAlbumThump)
+                        .setContentIntent(pIntent)
 //                .setAutoCancel(true)
-                .setWhen(0)
-                .addAction(android.R.drawable.ic_media_previous, "", previousIntent);
+//                        .setWhen(0)
+                        .addAction(android.R.drawable.ic_media_previous, "", previousIntent);
         if(playerState == PlayerState.STATE_PLAY) {
-            notBuilder.addAction(android.R.drawable.ic_media_pause, "", playpauseIntent);
+            notiBuilder.addAction(android.R.drawable.ic_media_pause, "", playpauseIntent);
         }else{
-            notBuilder.addAction(android.R.drawable.ic_media_play, "", playpauseIntent);
+            notiBuilder.addAction(android.R.drawable.ic_media_play, "", playpauseIntent);
         }
-        notBuilder.addAction(android.R.drawable.ic_media_next, "", nextIntent).build();
-        Notification n  = notBuilder.build();
+        notiBuilder.addAction(android.R.drawable.ic_media_next, "", nextIntent).build();
+        Notification n  = notiBuilder.build();
+
         n.flags |= Notification.FLAG_ONGOING_EVENT;
         startForeground(NOTIFICATION_ID, n);
     }
