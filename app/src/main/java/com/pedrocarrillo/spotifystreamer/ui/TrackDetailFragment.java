@@ -1,16 +1,18 @@
 package com.pedrocarrillo.spotifystreamer.ui;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -27,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class TrackDetailFragment extends Fragment {
+public class TrackDetailFragment extends DialogFragment {
 
     private TextView tvAlbumTitle, tvSongTitle, tvArtistName, tvSongPosition;
     private ImageView ivAlbumImage;
@@ -94,6 +96,13 @@ public class TrackDetailFragment extends Fragment {
     public void onPause() {
         super.onPause();
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(playerReceiver);
+    }
+
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        return dialog;
     }
 
     @Override
