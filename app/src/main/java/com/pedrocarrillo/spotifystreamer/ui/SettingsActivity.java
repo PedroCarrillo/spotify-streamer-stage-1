@@ -1,10 +1,12 @@
 package com.pedrocarrillo.spotifystreamer.ui;
 
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.preference.SwitchPreference;
 
 import com.pedrocarrillo.spotifystreamer.R;
 
@@ -20,6 +22,7 @@ public class SettingsActivity extends PreferenceActivity
         // For all preferences, attach an OnPreferenceChangeListener so the UI summary can be
         // updated when the preference changes.
         bindPreferenceSummaryToValue(findPreference(getString(R.string.country_key)));
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.notifications_lock_screen_key)));
     }
 
     /**
@@ -33,10 +36,18 @@ public class SettingsActivity extends PreferenceActivity
 
         // Trigger the listener immediately with the preference's
         // current value.
-        onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
+        if ( preference instanceof EditTextPreference){
+            onPreferenceChange(preference,
+                    PreferenceManager
+                            .getDefaultSharedPreferences(preference.getContext())
+                            .getString(preference.getKey(), ""));
+        }
+        if ( preference instanceof SwitchPreference){
+            onPreferenceChange(preference,
+                    PreferenceManager
+                            .getDefaultSharedPreferences(preference.getContext())
+                            .getBoolean(preference.getKey(), false));
+        }
     }
 
     @Override
