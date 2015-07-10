@@ -7,4 +7,10 @@
         android:inputType="text"
         android:maxLength="2"
         android:singleLine="true"/>
+
+    <SwitchPreference
+        android:key="@string/notifications_lock_screen_key"
+        android:title="@string/notifications_lock_screen_text"
+        android:defaultValue="true" />
+
 </PreferenceScreen>

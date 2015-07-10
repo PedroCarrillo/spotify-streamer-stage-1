@@ -3,6 +3,7 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:weightSum="1"
+    android:background="@drawable/touch_selector"
     android:layout_height="wrap_content"
     android:paddingLeft="20dp"
     android:paddingRight="@dimen/activity_horizontal_margin"

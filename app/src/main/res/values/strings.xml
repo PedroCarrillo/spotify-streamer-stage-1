@@ -13,4 +13,12 @@
     <string name="default_country">US</string>
     <string name="artist_not_found">Artist not found. Please refine your search</string>
     <string name="no_internet_connection">No Internet Connection</string>
+    <string name="title_activity_track_detail">TrackDetailActivity</string>
+    <string name="author_placeholder">Author Text</string>
+    <string name="album_placeholder">Album name</string>
+    <string name="time_placeholder">0:00</string>
+    <string name="now_playing_str">Now Playing</string>
+    <string name="notifications_lock_screen_key">notifications_lock_screen</string>
+    <string name="notifications_lock_screen_text">Notifications on Lock Screen</string>
+    <string name="action_share_text">Share Now Playing</string>
 </resources>

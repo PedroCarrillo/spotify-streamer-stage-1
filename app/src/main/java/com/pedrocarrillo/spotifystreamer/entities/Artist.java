@@ -21,6 +21,31 @@ public class Artist implements Parcelable {
         return id;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(name);
+        dest.writeString(imageUrl);
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<Artist> CREATOR = new Parcelable.Creator<Artist>() {
+        @Override
+        public Artist createFromParcel(Parcel in) {
+            return new Artist(in);
+        }
+
+        @Override
+        public Artist[] newArray(int size) {
+            return new Artist[size];
+        }
+    };
+    
     public void setId(String id) {
         this.id = id;
     }
@@ -47,28 +72,5 @@ public class Artist implements Parcelable {
         imageUrl = in.readString();
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
-        dest.writeString(name);
-        dest.writeString(imageUrl);
-    }
-
-    @SuppressWarnings("unused")
-    public static final Parcelable.Creator<Artist> CREATOR = new Parcelable.Creator<Artist>() {
-        @Override
-        public Artist createFromParcel(Parcel in) {
-            return new Artist(in);
-        }
-
-        @Override
-        public Artist[] newArray(int size) {
-            return new Artist[size];
-        }
-    };
 }
+
