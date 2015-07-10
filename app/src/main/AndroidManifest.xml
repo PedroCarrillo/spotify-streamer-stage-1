@@ -32,7 +32,8 @@
             android:label="@string/title_activity_track_detail" >
         </activity>
 
-        <service android:name="com.pedrocarrillo.spotifystreamer.services.PreviewPlayerService"/>
+        <service android:name="com.pedrocarrillo.spotifystreamer.services.PreviewPlayerService"
+            android:stopWithTask="true"/>
 
     </application>
 

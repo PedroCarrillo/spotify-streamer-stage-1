@@ -18,4 +18,7 @@
     <string name="album_placeholder">Album name</string>
     <string name="time_placeholder">0:00</string>
     <string name="now_playing_str">Now Playing</string>
+    <string name="notifications_lock_screen_key">notifications_lock_screen</string>
+    <string name="notifications_lock_screen_text">Notifications on Lock Screen</string>
+    <string name="action_share_text">Share Now Playing</string>
 </resources>

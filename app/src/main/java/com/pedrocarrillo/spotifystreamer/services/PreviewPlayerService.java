@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
@@ -15,6 +16,7 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
 import android.widget.Toast;
@@ -101,6 +103,10 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
 
     public Integer getSelectedTrackPosition() {
         return selectedTrackPosition;
+    }
+
+    public Track getPlayingTrack(){
+        return playingTrack;
     }
 
     @Override
@@ -246,20 +252,22 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
         PendingIntent nextIntent = PendingIntent.getService(getApplicationContext(), 0,
                 playerServiceIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
-            NotificationCompat.Builder notiBuilder = new NotificationCompat.Builder(this);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean notificationOnLockScreen = sharedPreferences.getBoolean(getResources().getString(R.string.notifications_lock_screen_key), false);
+        NotificationCompat.Builder notiBuilder = new NotificationCompat.Builder(this);
         notiBuilder
-                .setContentTitle("Now Playing")
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setStyle(new NotificationCompat.MediaStyle())
+            .setContentTitle("Now Playing")
+            .setStyle(new NotificationCompat.MediaStyle())
 //                .setShowActionsInCompactView(1)
 //                .setMediaSession(mediaPlayer.getSessionToken())
-                .setContentText(playingTrack.getName())
-                        .setSmallIcon(R.mipmap.ic_launcher)
-                        .setLargeIcon(bigAlbumThump)
-                        .setContentIntent(pIntent)
-//                .setAutoCancel(true)
+            .setContentText(playingTrack.getName())
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setLargeIcon(bigAlbumThump)
+            .setContentIntent(pIntent)
+            .setAutoCancel(true)
 //                        .setWhen(0)
-                        .addAction(android.R.drawable.ic_media_previous, "", previousIntent);
+            .addAction(android.R.drawable.ic_media_previous, "", previousIntent);
+        if (notificationOnLockScreen) notiBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         if(playerState == PlayerState.STATE_PLAY) {
             notiBuilder.addAction(android.R.drawable.ic_media_pause, "", playpauseIntent);
         }else{

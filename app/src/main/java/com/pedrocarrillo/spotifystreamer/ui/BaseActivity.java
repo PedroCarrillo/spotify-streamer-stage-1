@@ -12,7 +12,9 @@ import android.os.IBinder;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -133,10 +135,26 @@ public class BaseActivity extends ActionBarActivity implements OnMediaPlayerList
     public boolean onPrepareOptionsMenu(Menu menu) {
         if( getPlayerState() != PreviewPlayerService.PlayerState.STATE_STOP) {
             menu.findItem(R.id.action_now_playing).setVisible(true);
+            MenuItem share = menu.findItem(R.id.action_share);
+            share.setVisible(true);
+            ShareActionProvider mShareActionProvider =
+                    (ShareActionProvider) MenuItemCompat.getActionProvider(share);
+            if (mShareActionProvider != null ) {
+                mShareActionProvider.setShareIntent(createShareCurrentTrackIntent());
+            }
         }else{
             menu.findItem(R.id.action_now_playing).setVisible(false);
+            menu.findItem(R.id.action_share).setVisible(false);
         }
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    public Intent createShareCurrentTrackIntent(){
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, previewPlayerService.getPlayingTrack().getPreviewUrl());
+        return shareIntent;
     }
 
     @Override
@@ -151,7 +169,7 @@ public class BaseActivity extends ActionBarActivity implements OnMediaPlayerList
         if (id == R.id.action_now_playing) {
             boolean mIsLargeLayout = getResources().getBoolean(R.bool.large_layout);
             TrackDetailFragment trackDetailFragment = TrackDetailFragment.newInstance(previewPlayerService.getSelectedTrackPosition());
-            trackDetailFragment.showCurentSong();
+//            trackDetailFragment.showCurentSong();
             FragmentManager fragmentManager = getSupportFragmentManager();
             if (mIsLargeLayout) {
                 trackDetailFragment.show(fragmentManager, "dialog");
