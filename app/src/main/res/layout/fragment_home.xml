@@ -23,7 +23,8 @@
             android:id="@+id/lvArtists"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            style="@style/ArtistSearchListViewStyle"/>
     </LinearLayout>
     <ProgressBar
         android:id="@+id/pbLoading"

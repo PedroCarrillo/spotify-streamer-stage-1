@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.pedrocarrillo.spotifystreamer.HomeActivity;
 import com.pedrocarrillo.spotifystreamer.R;
 import com.pedrocarrillo.spotifystreamer.entities.Track;
+import com.pedrocarrillo.spotifystreamer.ui.BaseActivity;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -51,6 +52,7 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
     public static String ACTION_UNPAUSE = "action_unpause";
     public static String ACTION_NEXT = "action_next";
     public static String ACTION_PREVIOUS = "action_previous";
+    public static String SONG_ACTUAL_POSITION = "song_actual_pos";
     private static int NOTIFICATION_ID = 1;
 
     public MediaPlayer mediaPlayer = null;
@@ -109,14 +111,15 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
         }else if(playerAction.equalsIgnoreCase(ACTION_PREPARE_TRACK)){
             selectedTrackPosition = intent.getIntExtra(TRACK_SELECTED_POSITION,0);
             prepareTrack();
+            notifySongChange();
         }else if( playerAction.equalsIgnoreCase(ACTION_PLAY)) {
             playTrack();
         }else if( playerAction.equalsIgnoreCase(ACTION_PAUSE)) {
             startNotification();
-            playerState = PlayerState.STATE_PAUSE;
+            setPlayerState(PlayerState.STATE_PAUSE);
             mediaPlayer.pause();
         }else if( playerAction.equalsIgnoreCase(ACTION_UNPAUSE)) {
-            playerState = PlayerState.STATE_PLAY;
+            setPlayerState(PlayerState.STATE_PLAY);
             mediaPlayer.start();
             startNotification();
         }else if( playerAction.equalsIgnoreCase(ACTION_NEXT)){
@@ -130,6 +133,11 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
         return START_STICKY;
     }
 
+    private void setPlayerState(PlayerState playerState){
+        this.playerState = playerState;
+        notifyPlayerStateChange();
+    }
+
     private void prepareTrack(){
         trackSelected = trackList.get(selectedTrackPosition);
     }
@@ -137,7 +145,7 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
     private void playTrack(){
 //        if( isSameSong() )
         preparePlayer();
-        playerState = PlayerState.STATE_PLAY;
+        setPlayerState(PlayerState.STATE_PLAY);
         startNotification();
     }
 
@@ -174,7 +182,6 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
         }
     };
 
-    public static String SONG_ACTUAL_POSITION = "song_actual_pos";
     private void notifyTrackPosition(){
         if(mediaPlayer.isPlaying()) {
             Intent intent = new Intent();
@@ -190,6 +197,13 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
         Intent intent = new Intent();
         intent.putExtra(SONG_CHANGED_TAG,true);
         intent.setAction(ACTION_UPDATE_UI);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent) ;
+    }
+
+    private void notifyPlayerStateChange(){
+        Intent intent = new Intent();
+        intent.putExtra(BaseActivity.HAS_CHANGED_PLAYER_STATE,true);
+        intent.setAction(BaseActivity.ACTION_STATE_PLAYER);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent) ;
     }
 
@@ -276,7 +290,7 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        playerState = PlayerState.STATE_STOP;
+        setPlayerState(PlayerState.STATE_STOP);
         notifySongChange();
     }
 

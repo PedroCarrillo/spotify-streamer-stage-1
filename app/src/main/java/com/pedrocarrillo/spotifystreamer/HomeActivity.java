@@ -2,44 +2,51 @@ package com.pedrocarrillo.spotifystreamer;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import com.pedrocarrillo.spotifystreamer.ui.BaseActivity;
-import com.pedrocarrillo.spotifystreamer.ui.SettingsActivity;
+import com.pedrocarrillo.spotifystreamer.ui.HomeFragment;
+import com.pedrocarrillo.spotifystreamer.ui.TopTracksActivity;
+import com.pedrocarrillo.spotifystreamer.ui.TopTracksFragment;
 
 
-public class HomeActivity extends BaseActivity {
+public class HomeActivity extends BaseActivity implements HomeFragment.OnArtistListener{
+
+    private boolean mTwoPane;
+    public static String TOP_TRACKS_FRG_TAG = "toptracksfrag";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        if (findViewById(R.id.container) != null) {
+            mTwoPane = true;
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container, new TopTracksFragment(), TOP_TRACKS_FRG_TAG)
+                        .commit();
+            }
+        } else {
+            mTwoPane = false;
+        }
         setTitle(R.string.app_name);
     }
 
-
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_home, menu);
-        return true;
+    public void serviceReady(){
+        invalidateOptionsMenu();
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Intent intent = new Intent(this, SettingsActivity.class);
+    public void onArtistItemClick(String artistId, String artistName) {
+        if(mTwoPane){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, TopTracksFragment.newInstance(artistId,artistName), TOP_TRACKS_FRG_TAG)
+                    .commit();
+        }else{
+            Intent intent = new Intent(HomeActivity.this, TopTracksActivity.class);
+            intent.putExtra(HomeFragment.ARTIST_ID, artistId);
+            intent.putExtra(HomeFragment.ARTIST_NAME, artistName);
             startActivity(intent);
-            return true;
         }
-
-        return super.onOptionsItemSelected(item);
     }
 }

@@ -17,4 +17,5 @@
     <string name="author_placeholder">Author Text</string>
     <string name="album_placeholder">Album name</string>
     <string name="time_placeholder">0:00</string>
+    <string name="now_playing_str">Now Playing</string>
 </resources>

@@ -3,6 +3,8 @@ package com.pedrocarrillo.spotifystreamer.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,10 +32,23 @@ public class TopTracksFragment extends Fragment implements TopTracksAsyncTask.Tr
     private TrackListAdapter trackListAdapter;
     private ProgressBar progressBar;
     public static String ARTIST_NAME_KEY = "ARTIST_NAME";
-    public static String TRACK_LIST_KEY = "TRACK_LIST_KEY";
     public static String TRACK_KEY_POSITION = "TRACK_KEY_POSITION";
 
+    public static String TRACK_LIST_KEY = "TRACK_LIST_KEY";
+
+    TrackDetailFragment trackDetailFragment;
+    boolean mIsLargeLayout;
+
     public TopTracksFragment() {
+    }
+
+    public static TopTracksFragment newInstance(String artistId, String artistName){
+        TopTracksFragment fragment = new TopTracksFragment();
+        Bundle args = new Bundle();
+        args.putString(HomeFragment.ARTIST_ID, artistId);
+        args.putString(HomeFragment.ARTIST_NAME, artistName);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
@@ -51,12 +66,14 @@ public class TopTracksFragment extends Fragment implements TopTracksAsyncTask.Tr
         final String artistId, artistName;
         ArrayList<Track> tracksArrayList;
         if( savedInstanceState == null){
-            artistId = getActivity().getIntent().getStringExtra(HomeFragment.ARTIST_ID);
-            artistName = getActivity().getIntent().getStringExtra(HomeFragment.ARTIST_NAME);
-            progressBar.setVisibility(View.VISIBLE);
             tracksArrayList = new ArrayList<Track>();
-            TopTracksAsyncTask topTracksAsyncTask = new TopTracksAsyncTask(this);
-            topTracksAsyncTask.execute(artistId);
+            if(getArguments() != null) {
+                artistId = getArguments().getString(HomeFragment.ARTIST_ID);
+                artistName = getArguments().getString(HomeFragment.ARTIST_NAME);
+                progressBar.setVisibility(View.VISIBLE);
+                TopTracksAsyncTask topTracksAsyncTask = new TopTracksAsyncTask(this);
+                topTracksAsyncTask.execute(artistId);
+            }
         }else {
             artistName = savedInstanceState.getString(ARTIST_NAME_KEY);
             tracksArrayList = savedInstanceState.getParcelableArrayList(TRACK_LIST_KEY);
@@ -67,14 +84,14 @@ public class TopTracksFragment extends Fragment implements TopTracksAsyncTask.Tr
         lvTopTracks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getActivity(),TrackDetailActivity.class);
-                intent.putExtra(HomeFragment.ARTIST_NAME,artistName);
-                intent.putExtra(HomeFragment.LIST_ARTIST_KEY,trackListAdapter.getTrackList());
-                intent.putExtra(TRACK_KEY_POSITION,position);
-                startActivity(intent);
+//                Intent intent = new Intent(getActivity(),TrackDetailActivity.class);
+//                intent.putExtra(HomeFragment.ARTIST_NAME,artistName);
+//                intent.putExtra(HomeFragment.LIST_ARTIST_KEY,trackListAdapter.getTrackList());
+//                intent.putExtra(TRACK_KEY_POSITION,position);
+//                startActivity(intent);
+                showTrackDetail(position);
             }
         });
-        ((TopTracksActivity)getActivity()).getSupportActionBar().setSubtitle(artistName);
     }
 
     @Override
@@ -104,5 +121,22 @@ public class TopTracksFragment extends Fragment implements TopTracksAsyncTask.Tr
     public void errorConnection(){
         progressBar.setVisibility(View.GONE);
         Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
+    }
+
+    public void showTrackDetail(int positionTrackSelected){
+        mIsLargeLayout = getResources().getBoolean(R.bool.large_layout);
+        trackDetailFragment = TrackDetailFragment.newInstance(positionTrackSelected);
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        if (mIsLargeLayout) {
+            trackDetailFragment.show(fragmentManager, "dialog");
+        } else {
+            fragmentManager
+                .beginTransaction()
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .add(R.id.container, trackDetailFragment)
+                    .addToBackStack(null)
+                    .commit();
+        }
+
     }
 }

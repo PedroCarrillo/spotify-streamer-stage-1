@@ -40,11 +40,21 @@ public class TrackDetailFragment extends DialogFragment {
     private Intent playerServiceIntent;
     private OnMediaPlayerListener onMediaPlayerListener;
     private PlayerReceiver playerReceiver = new PlayerReceiver();
+    boolean showCurrentPlaying = false;
 
     public static TrackDetailFragment newInstance(int positionTrackSelected){
         TrackDetailFragment fragment = new TrackDetailFragment();
         Bundle args = new Bundle();
         args.putInt(TopTracksFragment.TRACK_KEY_POSITION, positionTrackSelected);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static TrackDetailFragment newInstance(int positionTrackSelected,boolean showNowPlaying){
+        TrackDetailFragment fragment = new TrackDetailFragment();
+        Bundle args = new Bundle();
+        args.putInt(TopTracksFragment.TRACK_KEY_POSITION, positionTrackSelected);
+        args.putBoolean("showNowPlayingTrack", showNowPlaying);
         fragment.setArguments(args);
         return fragment;
     }
@@ -57,6 +67,7 @@ public class TrackDetailFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             positionTrackSelected = getArguments().getInt(TopTracksFragment.TRACK_KEY_POSITION);
+            showCurrentPlaying = getArguments().getBoolean("showNowPlayingTrack",false);
         }
     }
 
@@ -187,6 +198,10 @@ public class TrackDetailFragment extends DialogFragment {
 
     public void startPlayerServiceIntent(){
         getActivity().startService(playerServiceIntent);
+    }
+
+    public void showCurrentSong(){
+
     }
 
     public class PlayerReceiver extends BroadcastReceiver {

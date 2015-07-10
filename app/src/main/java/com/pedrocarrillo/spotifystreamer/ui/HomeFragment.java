@@ -1,6 +1,6 @@
 package com.pedrocarrillo.spotifystreamer.ui;
 
-import android.content.Intent;
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -35,6 +35,8 @@ public class HomeFragment extends Fragment implements ArtistAsyncTask.AdapterLis
     public static String LIST_ARTIST_KEY = "ARTIST_LIST_KEY";
     public static String ARTIST_ID = "ARTIST_ID";
     public static String ARTIST_NAME = "ARTIST_NAME";
+
+    OnArtistListener onArtistListener;
 
     public HomeFragment() {
     }
@@ -82,12 +84,26 @@ public class HomeFragment extends Fragment implements ArtistAsyncTask.AdapterLis
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Artist artist = artistListAdapter.getItem(position);
-                Intent intent = new Intent(getActivity(), TopTracksActivity.class);
-                intent.putExtra(ARTIST_ID, artist.getId());
-                intent.putExtra(ARTIST_NAME,artist.getName());
-                startActivity(intent);
+                onArtistListener.onArtistItemClick(artist.getId(),artist.getName());
             }
         });
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            onArtistListener = (OnArtistListener)activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        onArtistListener = null;
     }
 
     @Override
@@ -119,5 +135,9 @@ public class HomeFragment extends Fragment implements ArtistAsyncTask.AdapterLis
     public void noConnection(){
         progressBar.setVisibility(View.GONE);
         Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
+    }
+
+    public interface OnArtistListener{
+        void onArtistItemClick(String artistId, String artistName);
     }
 }
