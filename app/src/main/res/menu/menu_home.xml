@@ -9,6 +9,7 @@
         app:showAsAction="always" />
     <item android:id="@+id/action_share"
         android:title="@string/action_share_text"
+        android:actionProviderClass="android.widget.ShareActionProvider"
         android:orderInCategory="100"
         android:visible="false"
         app:showAsAction="never" />

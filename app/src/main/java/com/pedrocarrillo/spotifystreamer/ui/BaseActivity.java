@@ -128,6 +128,7 @@ public class BaseActivity extends ActionBarActivity implements OnMediaPlayerList
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_home, menu);
+
         return true;
     }
 
@@ -137,11 +138,9 @@ public class BaseActivity extends ActionBarActivity implements OnMediaPlayerList
             menu.findItem(R.id.action_now_playing).setVisible(true);
             MenuItem share = menu.findItem(R.id.action_share);
             share.setVisible(true);
-            ShareActionProvider mShareActionProvider =
-                    (ShareActionProvider) MenuItemCompat.getActionProvider(share);
-            if (mShareActionProvider != null ) {
-                mShareActionProvider.setShareIntent(createShareCurrentTrackIntent());
-            }
+            ShareActionProvider mShareActionProvider = new ShareActionProvider(this);
+            mShareActionProvider.setShareIntent(createShareCurrentTrackIntent());
+            MenuItemCompat.setActionProvider(share, mShareActionProvider);
         }else{
             menu.findItem(R.id.action_now_playing).setVisible(false);
             menu.findItem(R.id.action_share).setVisible(false);
@@ -153,7 +152,9 @@ public class BaseActivity extends ActionBarActivity implements OnMediaPlayerList
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, previewPlayerService.getPlayingTrack().getPreviewUrl());
+//        if( previewPlayerService != null && previewPlayerService.getPlayingTrack() != null) {
+            shareIntent.putExtra(Intent.EXTRA_TEXT, previewPlayerService.getPlayingTrack().getPreviewUrl());
+//        }
         return shareIntent;
     }
 
@@ -169,17 +170,24 @@ public class BaseActivity extends ActionBarActivity implements OnMediaPlayerList
         if (id == R.id.action_now_playing) {
             boolean mIsLargeLayout = getResources().getBoolean(R.bool.large_layout);
             TrackDetailFragment trackDetailFragment = TrackDetailFragment.newInstance(previewPlayerService.getSelectedTrackPosition());
-//            trackDetailFragment.showCurentSong();
             FragmentManager fragmentManager = getSupportFragmentManager();
             if (mIsLargeLayout) {
                 trackDetailFragment.show(fragmentManager, "dialog");
             } else {
-                fragmentManager
-                        .beginTransaction()
-                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                        .add(R.id.container, trackDetailFragment)
-                        .addToBackStack(null)
-                        .commit();
+                if (findViewById(R.id.container) != null) {
+                    fragmentManager
+                            .beginTransaction()
+                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                            .add(R.id.container, trackDetailFragment)
+                            .addToBackStack(null)
+                            .commit();
+                }else{
+                    if(!(this instanceof TrackDetailActivity)) {
+                        Intent intent = new Intent(BaseActivity.this, TrackDetailActivity.class);
+                        intent.putExtra(TopTracksFragment.TRACK_KEY_POSITION, previewPlayerService.getSelectedTrackPosition());
+                        startActivity(intent);
+                    }
+                }
             }
             return true;
         }

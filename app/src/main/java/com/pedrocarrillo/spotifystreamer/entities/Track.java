@@ -4,70 +4,18 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * Created by Pedro on 09/06/15.
+ * Created by pcarrillo on 09/07/2015.
  */
 public class Track implements Parcelable {
 
-    private String name;
-    private String albumTitle;
-    private String imageUrl;
-    private String id;
-    private String previewUrl;
+    private String id, name, albumName, imageUrl, previewUrl;
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public Track(String id, String name, String albumTitle,String imageUrl,String previewUrl){
-        this.name = name;
-        this.imageUrl = imageUrl;
+    public Track(String id,String name, String albumName, String imageUrl, String previewUrl){
         this.id = id;
-        this.albumTitle = albumTitle;
-        this.previewUrl = previewUrl;
-    }
-
-    public Track(Parcel in){
-        this.name = in.readString();
-        this.imageUrl = in.readString();
-        this.id = in.readString();
-        this.albumTitle = in.readString();
-        this.previewUrl = in.readString();
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(name);
-        dest.writeString(imageUrl);
-        dest.writeString(id);
-        dest.writeString(albumTitle);
-        dest.writeString(previewUrl);
-    }
-
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public Track createFromParcel(Parcel in) {
-            return new Track(in);
-        }
-
-        public Track[] newArray(int size) {
-            return new Track[size];
-        }
-    };
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
         this.name = name;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
+        this.albumName = albumName;
         this.imageUrl = imageUrl;
+        this.previewUrl = previewUrl;
     }
 
     public String getId() {
@@ -78,12 +26,28 @@ public class Track implements Parcelable {
         this.id = id;
     }
 
-    public String getAlbumTitle() {
-        return albumTitle;
+    public String getName() {
+        return name;
     }
 
-    public void setAlbumTitle(String albumTitle) {
-        this.albumTitle = albumTitle;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAlbumTitle() {
+        return albumName;
+    }
+
+    public void setAlbumName(String albumName) {
+        this.albumName = albumName;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public String getPreviewUrl() {
@@ -93,4 +57,40 @@ public class Track implements Parcelable {
     public void setPreviewUrl(String previewUrl) {
         this.previewUrl = previewUrl;
     }
+
+    protected Track(Parcel in) {
+        id = in.readString();
+        name = in.readString();
+        albumName = in.readString();
+        imageUrl = in.readString();
+        previewUrl = in.readString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(name);
+        dest.writeString(albumName);
+        dest.writeString(imageUrl);
+        dest.writeString(previewUrl);
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<Track> CREATOR = new Parcelable.Creator<Track>() {
+        @Override
+        public Track createFromParcel(Parcel in) {
+            return new Track(in);
+        }
+
+        @Override
+        public Track[] newArray(int size) {
+            return new Track[size];
+        }
+    };
+
 }

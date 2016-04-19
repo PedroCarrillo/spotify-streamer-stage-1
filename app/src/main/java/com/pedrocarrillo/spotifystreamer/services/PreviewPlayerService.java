@@ -177,14 +177,14 @@ public class PreviewPlayerService extends Service implements MediaPlayer.OnSeekC
 
     public void setupHandler(){
         handler.removeCallbacks(sendUpdatesTrackUI);
-        handler.postDelayed(sendUpdatesTrackUI,1000);
+        handler.postDelayed(sendUpdatesTrackUI,0);
     }
 
     private Runnable sendUpdatesTrackUI = new Runnable() {
         @Override
         public void run() {
             notifyTrackPosition();
-            handler.postDelayed(sendUpdatesTrackUI,1000);
+            handler.postDelayed(sendUpdatesTrackUI,0);
         }
     };
 
